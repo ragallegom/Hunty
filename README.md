@@ -10,3 +10,6 @@ http://127.0.0.1:8000/
 
 apis
 http://localhost:8000/docs#/
+
+test
+pytest
