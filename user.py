@@ -11,7 +11,7 @@ class UserRequestModel(BaseModel):
     skills: list
 
 class UserResponseModel(UserRequestModel):
-    user_id: str
+    user_id: UUID
     first_name: str
     last_name: str
     email: str

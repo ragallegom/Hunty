@@ -15,6 +15,10 @@ app = FastAPI(
 async def index():
     return {"message": "Prueba técnica Hunty"}
 
+
+"""
+    User CRUD
+"""
 @app.post('/users')
 async def create_user(user_request: UserRequestModel):
     user = User(
@@ -41,7 +45,8 @@ async def get_all_user():
 @app.get('/users/{user_id}')
 async def get_user(user_id):
 
-    user = next((user for user in users if user.user_id == user_id), None)
+    user = next((user for user in users if user.user_id == uuid.UUID(user_id)), None)
+
     if user:
         return UserResponseModel(
             user_id=user.user_id,
@@ -57,7 +62,7 @@ async def get_user(user_id):
 @app.delete('/users/{user_id}')
 async def remove_user(user_id):
 
-    user = next((user for user in users if user.user_id == user_id), None)
+    user = next((user for user in users if user.user_id == uuid.UUID(user_id)), None)
     
     if user:
         users.remove(user)
@@ -67,12 +72,12 @@ async def remove_user(user_id):
 
 @app.put('/users/{user_id}')
 async def update_user(user_id, user_request: UserRequestModel):         
-    old_user = next((user for user in users if user.user_id == user_id), None)
+    old_user = next((user for user in users if user.user_id == uuid.UUID(user_id)), None)
     
     if old_user:
         if user_request:
             update_user = User(
-                user_id=user_request.user_id,
+                user_id=uuid.UUID(user_id),
                 first_name=user_request.first_name,
                 last_name=user_request.last_name,
                 email=user_request.email,
