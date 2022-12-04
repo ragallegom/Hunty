@@ -1,8 +1,9 @@
-from typing import Optional
-from pydantic import BaseModel
+import uuid
+from uuid import UUID
 
+from typing import Optional, Union
+from pydantic import BaseModel, Field
 class UserRequestModel(BaseModel):
-    user_id: str
     first_name: str
     last_name: str
     email: str
@@ -17,9 +18,13 @@ class UserResponseModel(UserRequestModel):
     years_previous_experience: int
     skills: list
 
+class User(UserRequestModel):
+    user_id: UUID
+
+
 userList = [
-    UserRequestModel(
-        user_id=1,
+    User(
+        user_id=uuid.uuid4(),
         first_name="Rodrigo",
         last_name="Gallego",
         email="test@gmail.com",
@@ -29,8 +34,8 @@ userList = [
             {"NoSQL": 2}
         ]
     ),
-    UserRequestModel(
-        user_id=2,
+    User(
+        user_id=uuid.uuid4(),
         first_name="Andrés",
         last_name="Gallego",
         email="test2@gmail.com",

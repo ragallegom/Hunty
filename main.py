@@ -1,5 +1,6 @@
+import uuid
 from fastapi import FastAPI, HTTPException
-from user import UserRequestModel, UserResponseModel, userList
+from user import UserRequestModel, UserResponseModel, User, userList
 
 users = userList
 
@@ -16,8 +17,8 @@ async def index():
 
 @app.post('/users')
 async def create_user(user_request: UserRequestModel):
-    user = UserRequestModel(
-        user_id=user_request.user_id,
+    user = User(
+        user_id=uuid.uuid4(),
         first_name=user_request.first_name,
         last_name=user_request.last_name,
         email=user_request.email,
@@ -42,7 +43,7 @@ async def get_user(user_id):
 
     user = next((user for user in users if user.user_id == user_id), None)
     if user:
-        return UserResponseModel(
+        return User(
             user_id=user.user_id,
             first_name=user.first_name,
             last_name=user.last_name,
@@ -70,7 +71,7 @@ async def update_user(user_id, user_request: UserRequestModel):
     
     if old_user:
         if user_request:
-            update_user = UserRequestModel(
+            update_user = User(
                 user_id=user_request.user_id,
                 first_name=user_request.first_name,
                 last_name=user_request.last_name,
