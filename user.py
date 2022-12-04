@@ -17,6 +17,7 @@ class UserResponseModel(UserRequestModel):
     email: str
     years_previous_experience: int
     skills: list
+    vacancies_available: list
 
 class User(UserRequestModel):
     user_id: UUID
@@ -24,14 +25,16 @@ class User(UserRequestModel):
 
 userList = [
     User(
-        user_id=uuid.uuid4(),
+        user_id='fd3512a1-2a18-4473-992d-31b5d522ecf7',
         first_name="Rodrigo",
         last_name="Gallego",
         email="test@gmail.com",
         years_previous_experience=5,
         skills= [
-            {"Python": 1},
-            {"NoSQL": 2}
+            {"Python": 5},
+            {"NoSQL": 4},
+            {"AWS": 3},
+            {"Angular": 6}
         ]
     ),
     User(
