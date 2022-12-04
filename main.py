@@ -1,5 +1,4 @@
 import uuid
-import json
 
 from fastapi import FastAPI, HTTPException
 from user import UserRequestModel, UserResponseModel, User, userList
@@ -50,15 +49,34 @@ async def get_all_user():
 async def get_user(user_id):
 
     user = next((user for user in users if user.user_id == uuid.UUID(user_id)), None)
-
+    vacancies_available= []
+    
     if user:
+        for vacancy in vacancies:
+            length_skills = len(vacancy.required_skills)
+            user_skills = set().union(*(d.keys() for d in user.skills))
+            passed_skills = 0
+
+            for skill in user_skills:
+                val_req = [d[skill] for d in vacancy.required_skills if skill in d]
+                val_user = [d[skill] for d in user.skills if skill in d]
+
+                if val_user and val_req and val_user >= val_req:
+                    passed_skills+=1 
+
+            accepted_average = (passed_skills/length_skills)*100
+
+            if(accepted_average >= 50):
+                vacancies_available.append(vacancy)
+            
         return UserResponseModel(
             user_id=user.user_id,
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
             years_previous_experience=user.years_previous_experience,
-            skills=user.skills
+            skills=user.skills,
+            vacancies_available=vacancies_available
         )
     else:
         return HTTPException(404, 'User not found')

@@ -36,7 +36,8 @@ vacanciesList = [
         vacancy_link= "https://www.test.com",
         required_skills= [
             {"Python" : 3},
-            {"NoSQL" : 2}
+            {"NoSQL" : 5},
+            {"AWS": 2}
         ]
     ),
     Vacancy(
@@ -48,7 +49,8 @@ vacanciesList = [
         vacancy_link= "https://www.test2.com",
         required_skills= [
             {"Angular" : 3},
-            {"NoSQL" : 2}
+            {"NoSQL" : 2},
+            {"AWS": 5}
         ]
     )
 ]
