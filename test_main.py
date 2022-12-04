@@ -2,7 +2,8 @@ import json
 import uuid
 
 from fastapi.testclient import TestClient
-from user import UserRequestModel, UserResponseModel, User, userList
+from user import User, userList
+from vacancy import Vacancy, vacanciesList
 
 from main import app
 
@@ -165,3 +166,177 @@ def test_update_user_fail_user_not_found():
 
     assert response.json()['status_code'] == 404
     assert response.json()['detail'] == 'User not found'
+
+"""
+    Vacancy Test
+"""
+
+def test_get_all_vacancies():
+    response = client.get("/vacancies")
+    assertList = []
+    for vacancy in response.json():
+        assertList.append(
+            Vacancy(
+                vacancy_id=vacancy['vacancy_id'],
+                position_name=vacancy['position_name'],
+                company_name=vacancy['company_name'],
+                salary=vacancy['salary'],
+                currency=vacancy['currency'],
+                vacancy_link=vacancy['vacancy_link'],
+                required_skills=vacancy['required_skills']
+            )
+        )
+    assert assertList == vacanciesList
+
+def test_get_vacancy_success():
+    id_test = vacanciesList[0].vacancy_id
+    response = client.get("/vacancies/"+str(id_test))
+    vacancy = response.json()
+
+    vacancy_test = Vacancy(
+                vacancy_id=vacancy['vacancy_id'],
+                position_name=vacancy['position_name'],
+                company_name=vacancy['company_name'],
+                salary=vacancy['salary'],
+                currency=vacancy['currency'],
+                vacancy_link=vacancy['vacancy_link'],
+                required_skills=vacancy['required_skills']
+            )
+
+    assert vacancy_test == vacanciesList[0]
+
+def test_get_vacancy_fail():
+    id_test = uuid.uuid4()
+    response = client.get("/vacancies/"+str(id_test))
+
+
+    assert response.json()['status_code'] == 404
+    assert response.json()['detail'] == 'Vacancy not found'
+
+def test_create_vacancy_success():
+    json_vacancy = {
+            "position_name": "Python Dev",
+            "company_name": "Test Company",
+            "salary": 9999999,
+            "currency": "COP",
+            "vacancy_link": "https://www.test.com",
+            "required_skills":[
+                {"Python" : 3},
+                {"NoSQL" : 2}
+            ]
+        }
+    response = client.post(
+        "/vacancies",
+        json=json_vacancy
+    )
+    print(response)
+    assert response.json()['position_name'] == json_vacancy['position_name']
+
+def test_create_vacancy_fail():
+    json_vacancy = {
+            "company_name": "Test Company",
+            "salary": 9999999,
+            "currency": "COP",
+            "vacancy_link": "https://www.test.com",
+            "required_skills":[
+                {"Python" : 3},
+                {"NoSQL" : 2}
+            ]
+        }
+    response = client.post(
+        "/vacancies",
+        json=json_vacancy
+    )
+
+    assert response.status_code == 422
+
+def test_remove_vacancy_success():
+    id_test = vacanciesList[0].vacancy_id
+    response = client.delete("/vacancies/"+str(id_test))
+
+    assert response.status_code == 200
+    assert response.json() == True
+
+def test_remove_vacancy_fail():
+    id_test = uuid.uuid4()
+    response = client.delete("/vacancies/"+str(id_test))
+
+    assert response.json()['status_code'] == 404
+    assert response.json()['detail'] == 'Vacancy not found'
+
+def test_update_vacancy_success():
+    id_test = vacanciesList[0].vacancy_id
+    json_vacancy = {
+            "position_name": "Python Senior Dev",
+            "company_name": "Test Company",
+            "salary": 9999999,
+            "currency": "COP",
+            "vacancy_link": "https://www.test.com",
+            "required_skills":[
+                {"Python" : 3},
+                {"NoSQL" : 2}
+            ]
+        }
+    response = client.put(
+        "/vacancies/"+str(id_test),
+        json=json_vacancy
+    )
+
+    assert vacanciesList[0].vacancy_id == uuid.UUID(response.json()['vacancy_id'])
+    assert vacanciesList[0].position_name != response.json()['position_name']
+    assert response.json()['position_name'] == json_vacancy['position_name']
+
+def test_update_vacancy_fail_without_information():
+    id_test = vacanciesList[0].vacancy_id
+    json_vacancy = {
+            "company_name": "Test Company",
+            "salary": 9999999,
+            "currency": "COP",
+            "vacancy_link": "https://www.test.com",
+            "required_skills":[
+                {"Python" : 3},
+                {"NoSQL" : 2}
+            ]
+        }
+    response = client.put(
+        "/vacancies/"+str(id_test),
+        json=json_vacancy
+    )
+
+    assert response.status_code == 422
+
+def test_update_vacancy_fail_user_not_found():
+    id_test = uuid.uuid4()
+    json_vacancy = {
+            "position_name": "Python Senior Dev",
+            "company_name": "Test Company",
+            "salary": 9999999,
+            "currency": "COP",
+            "vacancy_link": "https://www.test.com",
+            "required_skills":[
+                {"Python" : 3},
+                {"NoSQL" : 2}
+            ]
+        }
+    response = client.put(
+        "/vacancies/"+str(id_test),
+        json=json_vacancy
+    )
+
+    assert response.json()['status_code'] == 404
+    assert response.json()['detail'] == 'Vacancy not found'
+
+"""
+    Companies Test
+"""
+def test_get_all_companies():
+    companiesList = []
+    if vacanciesList:
+        for vacancy in vacanciesList:
+            if vacancy.company_name not in companiesList:
+                companiesList.append(vacancy.company_name)
+
+    response = client.get("/companies")
+
+    assert response.status_code == 200
+    assert response.json() == companiesList
