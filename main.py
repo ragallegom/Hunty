@@ -43,7 +43,7 @@ async def get_user(user_id):
 
     user = next((user for user in users if user.user_id == user_id), None)
     if user:
-        return User(
+        return UserResponseModel(
             user_id=user.user_id,
             first_name=user.first_name,
             last_name=user.last_name,
