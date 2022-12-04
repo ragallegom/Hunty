@@ -1,8 +1,12 @@
 import uuid
+import json
+
 from fastapi import FastAPI, HTTPException
 from user import UserRequestModel, UserResponseModel, User, userList
+from vacancy import VacancyRequestModel, VacancyResponseModel, Vacancy, vacanciesList
 
 users = userList
+vacancies = vacanciesList
 
 app = FastAPI(
     title='Hunty',
@@ -96,3 +100,102 @@ async def update_user(user_id, user_request: UserRequestModel):
 
     else:
         return HTTPException(404, 'User not found')
+
+"""
+    Vancacy CRUD
+"""
+@app.post('/vacancies')
+async def create_vacancy(vacancy_request: VacancyRequestModel):
+    vacancy = Vacancy(
+        vacancy_id= uuid.uuid4(),
+        position_name=vacancy_request.position_name,
+        company_name=vacancy_request.company_name,
+        salary=vacancy_request.salary,
+        currency=vacancy_request.currency,
+        vacancy_link=vacancy_request.vacancy_link,
+        required_skills=vacancy_request.required_skills
+    )
+
+    vacancies.append(vacancy)
+
+    return vacancy
+
+@app.get('/vacancies')
+async def get_all_vacancies():
+
+    if vacancies:
+        return vacancies
+    else:
+        return HTTPException(404, "We don't have vacancies")
+
+@app.get('/vacancies/{vacancy_id}')
+async def get_vacancy(vacancy_id):
+
+    vacancy = next((vacancy for vacancy in vacancies if vacancy.vacancy_id == uuid.UUID(vacancy_id)), None)
+
+    if vacancy:
+        return VacancyResponseModel(
+            vacancy_id=vacancy.vacancy_id,
+            position_name=vacancy.position_name,
+            company_name=vacancy.company_name,
+            salary=vacancy.salary,
+            currency=vacancy.currency,
+            vacancy_link=vacancy.vacancy_link,
+            required_skills=vacancy.required_skills
+        )
+    else:
+        return HTTPException(404, 'Vacancy not found')
+
+@app.delete('/vacancies/{vacancy_id}')
+async def remove_vacancy(vacancy_id):
+
+    vacancy = next((vacancy for vacancy in vacancies if vacancy.vacancy_id == uuid.UUID(vacancy_id)), None)
+    
+    if vacancy:
+        vacancies.remove(vacancy)
+        return True
+    else:
+        return HTTPException(404, 'Vacancy not found')
+
+@app.put('/vacancies/{vacancy_id}')
+async def update_vacancy(vacancy_id, vacancy_request: VacancyRequestModel):         
+    old_vacancy = next((vacancy for vacancy in vacancies if vacancy.vacancy_id == uuid.UUID(vacancy_id)), None)
+    
+    if old_vacancy:
+        if vacancy_request:
+            update_vacancy = Vacancy(
+                vacancy_id= uuid.UUID(vacancy_id),
+                position_name=vacancy_request.position_name,
+                company_name=vacancy_request.company_name,
+                salary=vacancy_request.salary,
+                currency=vacancy_request.currency,
+                vacancy_link=vacancy_request.vacancy_link,
+                required_skills=vacancy_request.required_skills
+            )
+
+            for idx, vacancy in enumerate(vacancies):
+                if old_vacancy in vacancy:
+                    vacancies[idx] = update_vacancy
+            
+            return update_vacancy
+
+        else: 
+            return HTTPException(400, 'Without information')
+
+    else:
+        return HTTPException(404, 'Vacancy not found')
+
+"""
+    Company R
+"""
+@app.get('/companies')
+async def get_all_companies():
+
+    companiesList = []
+    if vacancies:
+        for vacancy in vacancies:
+            if vacancy.company_name not in companiesList:
+                companiesList.append(vacancy.company_name)
+        return companiesList
+    else:
+        return HTTPException(404, "We don't have companies")
