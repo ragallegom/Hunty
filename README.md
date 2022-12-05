@@ -10,7 +10,7 @@ $ docker run -d -p 8000:80 fastapi_hunty
 http://127.0.0.1:8000/
 
 // Apis
-No hay necesidad de usar postman, se deja habilitada la url docs# para las pruebas... desde allí queda se realiza la creación de cada api en openapi
+No se crea colección de postman, pero se deja habilitada la url docs# para las pruebas... desde allí se realiza la creación de cada api (CRUD) con openapi
 http://localhost:8000/docs#/
 
 // Test
